@@ -1,0 +1,11 @@
+case "$ACTION" in
+	add)
+		# start mjpg-streamer
+		/etc/init.d/mjpg-streamer start
+		;;
+	remove)
+		 # stop mjpg-streamer
+		/etc/init.d/mjpg-streamer stop
+		;;
+esac
+

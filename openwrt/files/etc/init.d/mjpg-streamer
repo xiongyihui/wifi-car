@@ -1,0 +1,45 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2009 OpenWrt.org
+# Modified by Yihui Xiong(xiongyihui3@gmail.com), Aug 27, 2012
+
+START=50
+
+NAME=mjpg_streamer
+PROG=/usr/bin/$NAME
+
+start() {
+	config_load mjpg-streamer
+	config_get device core device
+	config_get resolution core resolution
+	config_get fps core fps
+	config_get port core port
+	config_get www core www
+	config_get_bool enabled core enabled
+	if [ $enabled -eq 0 ]; then
+		exit -1
+	fi
+
+	# wait for device's initialization
+	# sleep 3
+	if [ -e $device ]; then
+		$PROG -i "input_uvc.so -d $device -n -f $fps -r $resolution" \
+		      -o "output_http.so -p $port -w $www" &
+	else
+		exit -2
+	fi
+
+	sleep 3
+	# check if mjpeg streamer is running 
+	pgrep $NAME
+	if [ $? -ne 0 ]; then
+		# mjpeg streamer exited, perhaps the camera doesn't support JPG mode
+		# try to start mjpg streamer with YUV mode
+		$PROG -i "input_uvc.so -d $device -n -y -f $fps -r $resolution" \
+		      -o "output_http.so -p $port -w $www" &
+	fi
+}
+
+stop() {
+	killall -9 $NAME	
+}
+

@@ -1,0 +1,7 @@
+config mjpg-streamer core
+        option device       "/dev/video0"
+        option resolution   "640x480"
+        option fps          "155555"
+        option port         "8080"
+        option www          "/www/car"
+        option enabled      "1"

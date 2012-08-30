@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript">
+    var lastEvent = 0;
+
+    function write(s)
+    {
+        var url = "http://" + location.hostname + "/cgi-bin/serial?" + s;
+
+        xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", url, true);
+        xmlHttp.send();
+    }
+
+    function onKeyDown(event)
+    {
+        if (lastEvent != 0) {
+            return;
+        }
+        lastEvent = 1;
+
+        var e = event ? event : window.event; 
+        var unicode = e.which ? e.which : e.keyCode; 
+        var key = String.fromCharCode(unicode);
+        var c = key.toLowerCase();
+        var shortcuts = "awdsecz";
+        var arrows  = [37, 38, 39, 40];
+        var i;
+
+        for (i = 0; i < arrows.length; i++) {
+            if (unicode == arrows[i]) {
+                c = shortcuts.charAt(i);
+                break;
+            }   
+        }
+        
+
+        for (i = 0; i < shortcuts.length; i++) {
+            if (shortcuts.charAt(i) == c) {
+                write(c);
+                return;
+            }
+        }
+    }
+
+    function onKeyUp(event)
+    {
+        lastEvent = 0;
+
+        var e = event ? event : window.event; 
+        var unicode = e.charCode ? e.charCode : e.keyCode; 
+        var key = String.fromCharCode(unicode);
+        var c = key.toLowerCase();
+        var stopchar = "awds"; 
+        var stopcode  = [37, 38,  39, 40];
+        var i;
+
+        for (i = 0; i < stopcode.length; i++) {
+            if (unicode == stopcode[i])
+            {
+                write("z");
+                return;
+            }
+        }
+
+        for (i = 0; i < stopchar.length; i++) {
+            if (stopchar.charAt(i) == c) {
+                write("z");
+                return;
+            }
+        }
+    }
+
+    function showCamera()
+    {
+        var src = "http://" + location.hostname + ":8080/?action=stream";
+        document.write("<img src=" + src + 
+              " alt='Camera is not available' width='640px' height='480px'/>");
+    }
+</script>
+
+<style type="text/css">
+body {margin:0px; padding:0px;}
+img {vertical-align:middle;}
+img.key {margin-right:8px;}
+ul, li {margin:0px; padding:0px; float:left; list-style:none;} 
+li {height:32px; margin-right:16px; line-height:32px; vertical-align:middle;}
+#page {width:960px; margin:auto;}
+</style>
+
+<title>Car</title>
+</head>
+
+<body onkeydown="onKeyDown(event)" onKeyUp="onKeyUp(event)">
+
+<div id="page">
+<div id="main">
+<div id="camera-panel">
+<h3>Camera</h3>
+<script type="text/javascript">showCamera();</script>
+</div>
+<div id="operation-panel">
+<h3>Operation</h3>
+<ul>
+<li><img class="key" src="img/wasd.png"/>Move</li>
+<li><img class="key" src="img/z.png"/>Stop</li>
+<li><img class="key" src="img/e.png"/>Accelerate</li> 
+<li><img class="key" src="img/c.png"/>Decelerate</li>
+</ul>
+</div>
+</div>
+</div>
+
+</body>
+</html>
+
