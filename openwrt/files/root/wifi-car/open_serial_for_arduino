@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# dirty hack
+# This script is executed by /etc/hotplug.d/tty/30-arduino.
+# arduino will reset when arduino's serial port is opened for the first time.
+# So, this script just open arduino's serial port and sleep without close
+# serial port.
+
+DEVICE=$1
+
+if [ ! -e $DEVICE ]; then
+    logger "openserial: ${DEVICE} doesn't exist"
+    exit 1
+fi
+
+exec 5< $DEVICE
+while true; do
+    sleep 1h
+done
+

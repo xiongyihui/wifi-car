@@ -1,0 +1,4 @@
+
+1) Put file - serial to directory - /www/cgi-bin/
+
+2) Put file - 30-arduino to directory - /etc/hotplug.d/tty/

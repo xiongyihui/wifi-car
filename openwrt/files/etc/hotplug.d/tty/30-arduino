@@ -1,0 +1,31 @@
+# dirty hack
+# Arduino Uno will reset when the serial device is opened for the first time
+
+regex="ttyACM[0-9]"
+
+logger "action: ${ACTION}, name: ${DEVICENAME}, path: ${DEVPATH}"
+
+echo $DEVICENAME | grep -Eq $regex
+if [ $? -ne 0 ]; then
+    logger "not match"
+    exit
+fi
+
+DEVICE="/dev/$DEVICENAME" 
+
+# save device path
+echo $DEVICE > /var/wifi-car-serial
+
+killall -9 open_serial_for_arduino
+
+case "$ACTION" in
+    add)
+        # setup serial device
+        stty -F $DEVICE raw ospeed 115200 ispeed 115200
+        # just open serial device
+        /root/wifi-car/open_serial_for_arduino $DEVICE &
+        ;;
+    remove)
+        ;;
+esac
+

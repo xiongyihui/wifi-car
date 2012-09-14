@@ -1,0 +1,61 @@
+
+# switch between activity, add <activity/> in manifest
+Intent intent = new Intent(this, AnotherActivity.class);
+intent.putExtra(aString, value)
+startActivity(intent)
+
+Intent intent = getIntent();
+String value = intent.getStringExtra(aString);
+
+
+# communication between threads
+HandlerThread myThread = new HandlerThread("Worker Thread");
+myThread.start();
+Looper mLooper = myThread.getLooper();
+MyHandler mHandler = new MyHandler(mLooper);
+
+class MyHandler extends Handler {
+	public MyHandler(Looper looper) {
+		super(looper);
+	}
+
+	public void handleMessage(Message msg) {
+	}
+}
+
+
+    	URI uri;
+    	
+    	try {
+    		uri = URI.create(url);
+    	} catch (IllegalArgumentException e) {
+    		Log.v(TAG, e.getMessage());
+    		
+    		return null;
+    	}
+    	
+    	HttpResponse httpResponse;
+        DefaultHttpClient httpClient = new DefaultHttpClient();
+        try {
+            httpResponse = httpClient.execute(new HttpGet(uri));
+            
+            HttpEntity httpEntity = httpResponse.getEntity();
+            
+            String contentType = httpEntity.getContentType().getValue();
+            
+            // To do: check the input stream if it is a mjpeg stream
+//            if (!check()) {
+//                throw new  DataFormatException("Not a mjpeg stream");
+//            }
+            
+            Log.v(TAG, contentType);
+            Log.v(TAG, "source is " + (httpEntity.isStreaming() ? "" : "not") + "a stream.");
+            
+            return new MjpegInputStream(httpResponse.getEntity().getContent());
+        } catch (ClientProtocolException e) {
+            Log.v(TAG, "MjpegInputStream.getFromUrl(): " + e.getMessage());
+        } catch (IOException e) {
+            Log.v(TAG, "MjpegInputStream.getFromUrl(): " + e.getMessage());
+        }
+
+        return null;

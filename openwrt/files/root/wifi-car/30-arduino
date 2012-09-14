@@ -16,14 +16,14 @@ DEVICE="/dev/$DEVICENAME"
 # save device path
 echo $DEVICE > /var/wifi-car-serial
 
-killall -9 openserial
+killall -9 open_serial_for_arduino
 
 case "$ACTION" in
     add)
         # setup serial device
         stty -F $DEVICE raw ospeed 115200 ispeed 115200
         # just open serial device
-        /root/wifi-car/openserial $DEVICE &
+        /root/wifi-car/open_serial_for_arduino $DEVICE &
         ;;
     remove)
         ;;
