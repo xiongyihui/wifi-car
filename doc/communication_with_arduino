@@ -1,0 +1,14 @@
+
+The arduino board reads command from serial port. A command is a line end with
+LF('\n').
+
+Commands        functions
+-----------------------------
+w               forward
+a               turn left
+s               backward
+d               turn right
+z               stop
+e               accelerate
+c               decelerate
+

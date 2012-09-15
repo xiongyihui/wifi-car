@@ -1,0 +1,12 @@
+1) connect with the WiFi car through WiFi. The SSID of the WiFi car is 
+"wifi-car".
+2) access the WiFi car through web browser or android app - WiFi Car.
+    a) web browser
+        URL                                     Description
+        ------------------------------------------------------------------
+        http://192.168.1.1/car                  web UI 
+        http://192.168.1.1:8080?action=stream   camera
+        http://192.168.1.1/cgi-bin/serial       cgi script to send data
+    b) Android app - WiFi Car
+        just run the app.
+
