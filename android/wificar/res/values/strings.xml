@@ -1,0 +1,15 @@
+<resources>
+
+    <string name="app_name">WiFi Car</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_wifi_car">WiFi Car</string>
+    <string name="go">Go</string>
+    <string name="settings">Settings</string>
+    <string name="help">Help</string>
+    <string name="about">About</string>
+    <string name="title_activity_dashboard">Dashboard</string>
+    <string name="start_hint">Touch screen to start</string>
+    <string name="rotate_hint">Rotate to change direction of car</string>
+
+</resources>
