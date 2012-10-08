@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <EditTextPreference
+        android:key="@string/settings_ip_key"
+        android:title="@string/settings_ip_title"
+        android:defaultValue="@string/settings_ip_default" />
+    
+
+</PreferenceScreen>

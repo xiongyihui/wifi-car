@@ -1,0 +1,28 @@
+<resources>
+
+    <string name="app_name">WiFi Car</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">设置</string>
+    <string name="title_activity_wifi_car">WiFi Car</string>
+    <string name="title_activity_about">关于</string>
+    <string name="title_activity_help">帮助</string>
+    <string name="title_activity_settings">设置</string>
+    <string name="title_activity_dashboard">仪表盘</string>
+    <string name="settings">设置</string>
+    <string name="help">帮助</string>
+    <string name="about">关于</string>
+    <string name="go">开始</string>
+    <string name="about_content">WiFi Car</string>
+    <string name="help_content">
+        使用帮助：\n
+        1）连接到小车上的WiFi热点，初始的SSID为“wificar”；\n
+        2）在小车的控制界面中，触碰屏幕启动小车，离开屏幕停止小车，左右翻转转弯，向后翻转倒车，方向盘用于指示小车移动方式。
+        </string>
+    <string name="settings_ip_key">IP address of car</string>
+    <string name="settings_ip_title">IP地址</string>
+    <string name="settings_ip_default">192.168.1.1</string>
+    <string name="start_hint">触碰屏幕启动小车</string>
+    <string name="change_direction_hint">左右翻转转弯，向后翻转倒车</string>
+    <string name="network_not_available">网络不可用</string>
+
+</resources>

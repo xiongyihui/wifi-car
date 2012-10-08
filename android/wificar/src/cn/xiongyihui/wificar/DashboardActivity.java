@@ -1,6 +1,25 @@
+/**
+ * Copyright (C) 2012 Yihui Xiong
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ */
+
 package cn.xiongyihui.wificar;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.gesture.GestureOverlayView;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -10,251 +29,206 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class DashboardActivity extends Activity 
-			implements SensorEventListener, SurfaceHolder.Callback,
-			OnTouchListener, MjpegThread.Callback {
-	public final String TAG = "WiFi Car";
-	
-	private RelativeLayout layout;
-	
-	private SurfaceHolder surfaceHolder;
-	
-	private TextView hintTextView;
-	
-	private final int ANIMATION_DURATION = 500;
-	private final float ROTATE_THRES_DEGREES = 15;
-	private final float BACK_ROTATE_THRES_DEGREES = 30;
-	private final float ROTATE_DEGREES = 60;
-	private final float BACK_ROTATE_DEGREES = 180;
-	
-	private float wheelRotateDegrees;
-	private ImageView wheelImageView;
-	
-	private GestureOverlayView gestureView;
-	
-	private SensorManager sensorManager;
-	private Sensor gravitySensor;
-	
-	private CarThread car;
-	
-	private MjpegThread mjpegThread;
+            implements SensorEventListener, SurfaceHolder.Callback, OnTouchListener {
+    public final static String TAG = WifiCarActivity.TAG;
+    
+    /*
+     * Rotate image view to indicate car's moving direction.
+     */
+    private ImageView mDirectionImageView; 
+    private final int ROTATE_ANIMATION_SPEED = 360;         /* Degrees per second */  
+    private final float TURN_ROTATE_DEGREES = 60;
+    private final float BACK_ROTATE_DEGREES = 180;
+    private float mRotateDegrees;                           /* Current rotate degrees */
+    
+    private TextView mHintTextView;
+    private GestureOverlayView mGestureView;
+    
+    private SurfaceHolder mSurfaceHolder;
+    
+    /*
+     * Use gravity sensor to detect rotation and control car
+     */
+    private SensorManager mSensorManager;
+    private Sensor mGravitySensor;
+    private float TURN_THRES_DEGREES = 10;                  /* Threshold of tilting left/right */
+    private float BACK_THRES_DEGREES = 30;                  /* Threshold of tilting backward */
+    
+    private String mIp;
+    
+    private Car mCar;
+    private MjpegStream mMjpegStream;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	SurfaceView surfaceView;
-    	
         super.onCreate(savedInstanceState);
         
-        /* Set window with no title bar */
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-        		| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-        		| WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        /* Keep screen on when control a car */
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         
-        setContentView(R.layout.activity_dashboard);
+        setContentView(R.layout.dashboard);
         
-        layout = (RelativeLayout) findViewById(R.id.dashboardLayout);
-        layout.setOnTouchListener(this);
+        mDirectionImageView = (ImageView) findViewById(R.id.directionImageView);
+        mRotateDegrees = 0;
         
-        surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
-        surfaceHolder = surfaceView.getHolder();
-        surfaceHolder.addCallback(this);
+        mHintTextView = (TextView) findViewById(R.id.hintTextView);
         
-        hintTextView = (TextView) findViewById(R.id.hintTextView);
+        mGestureView = (GestureOverlayView) findViewById(R.id.gestureOverlayView);
+        mGestureView.setGestureVisible(false);
+        mGestureView.setOnTouchListener(this);
         
-        /* get the ImageView which holds a wheel */
-        wheelImageView = (ImageView) findViewById(R.id.wheelImageView);
+        SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
+        mSurfaceHolder = surfaceView.getHolder();
+        mSurfaceHolder.addCallback(this);
         
-        /* Initially, wheel with on rotation */
-        wheelRotateDegrees = 0;
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mGravitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
         
-        gestureView = (GestureOverlayView) findViewById(R.id.gestureOverlayView);
-        gestureView.setVisibility(View.INVISIBLE);
+        mCar = new Car();
         
-        /* Get gravity sensor */
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
         
-        mjpegThread = new MjpegThread("Mjpeg Thread");
-    	mjpegThread.setCallback(this);
     }
-    
+     
     @Override
     public void onResume() {
     	super.onResume();
     	
+    	SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
+        mIp = preference.getString(getString(R.string.settings_ip_key), "192.168.1.1");
+        mCar.setIp(mIp);
         
-        car = new CarThread("Car Control Thread");
-        car.start();										/* start car thread */
+        Log.v(TAG, "Car's IP: " + mIp);
+        Toast.makeText(this, mIp, Toast.LENGTH_SHORT).show();
     	
-    	sensorManager.registerListener(this, gravitySensor,
-    									SensorManager.SENSOR_DELAY_NORMAL);
+    	mSensorManager.registerListener(this, mGravitySensor, SensorManager.SENSOR_DELAY_GAME);
     }
     
     @Override
     public void onPause() {
-    	super.onPause();
-    	
-    	sensorManager.unregisterListener(this);
-    	
-    	car.quit();											/* quit car thread */
+        super.onPause();
+        
+        mSensorManager.unregisterListener(this);
     }
     
     public boolean onTouch(View view, MotionEvent event) {
-//    	Log.v(TAG, "onTouch(): action - " + event.getAction());
-    	
-    	switch (event.getAction()) {
-    	case MotionEvent.ACTION_DOWN:
-    		car.startEngine();
-    		
-    		hintTextView.setText(R.string.rotate_hint);
-    		break;
-    	case MotionEvent.ACTION_UP:
-    		car.stopEngine();
-    		
-    		hintTextView.setText(R.string.start_hint);
-    		break;
-    	default:
-    		;
-    	}
-    	
-    	return true;
+        switch (event.getAction()) {
+        case MotionEvent.ACTION_DOWN:
+            mCar.start();
+            mHintTextView.setText(R.string.change_direction_hint);
+            break;
+        case MotionEvent.ACTION_UP:
+            mCar.stop();
+            mHintTextView.setText(R.string.start_hint);
+            break;
+        }
+        return true;
     }
-  
+    
     public void onSensorChanged(SensorEvent event) {
-    	float xValue;
-    	float yValue;
-    	float zValue;
-    	float horizontalDegrees;
-    	float verticalDegrees;
-    	
-//    	Log.v(TAG, "onSensorChanged()");
-    	
-    	xValue = event.values[0];
-    	yValue = event.values[1];
-    	zValue = event.values[2];
-    	
-    	if (zValue <= 0) {
-    		/* Phone is turned over, stop car */
-    		car.park();
-    		
-    		if (wheelRotateDegrees != 0) {
-	    		steerWheel(wheelRotateDegrees, 0);
-	    		wheelRotateDegrees = 0;
-    		}
-    		
-    		return;
-    	}
-    	
-    	/* Phone's orientation is landscape */
-    	horizontalDegrees = (float) Math.toDegrees(Math.atan(yValue / zValue));
-    	verticalDegrees = (float) Math.toDegrees(Math.atan(xValue / zValue));
-    	
-		if ((verticalDegrees > BACK_ROTATE_THRES_DEGREES)
-				&& (verticalDegrees > horizontalDegrees)) {
-			if (wheelRotateDegrees != BACK_ROTATE_DEGREES) {
-				car.backward();
-				
-				steerWheel(wheelRotateDegrees, BACK_ROTATE_DEGREES);
-				wheelRotateDegrees = BACK_ROTATE_DEGREES;
-			}
-			
-			return;
-    	} 
-    	
-    	if (horizontalDegrees > ROTATE_THRES_DEGREES) {
-    		if (wheelRotateDegrees != ROTATE_DEGREES) {
-	    		car.turnRight();
-	    		
-	    		steerWheel(wheelRotateDegrees, ROTATE_DEGREES);
-	    		wheelRotateDegrees = ROTATE_DEGREES;
-    		}
-    	} else if (horizontalDegrees < -ROTATE_THRES_DEGREES) {
-    		if (wheelRotateDegrees != -ROTATE_DEGREES) {
-	    		car.turnLeft();
-	    		
-	    		steerWheel(wheelRotateDegrees, -ROTATE_DEGREES);
-	    		wheelRotateDegrees = -ROTATE_DEGREES;
-    		}
-    	} else {
-    		if (wheelRotateDegrees != 0) {
-	    		car.forward();
-	    		
-	    		steerWheel(wheelRotateDegrees, 0);
-	    		wheelRotateDegrees = 0;
-	    	}
-    	}
-    }
-    
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    	Log.v(TAG, sensor.getName() + "'s accuracy is changed.");
-    }
-    
-    public void surfaceCreated(SurfaceHolder holder) {
-    	Log.v(TAG, "surfaceCreated()");
+        float x = event.values[0];
+        float y = event.values[1];
+        float z = event.values[2];
         
-    	mjpegThread.start();
-    }
-    
-    public void surfaceChanged(SurfaceHolder holder, int format,
-    						   int width, int height) {
-    	Log.v(TAG, "surfaceChanged(): format - " + format
-    			+ ", width - " + width + ", height - " + height);
-    	
-    	
-    }
-    
-    public void surfaceDestroyed(SurfaceHolder holder) {
-    	Log.v(TAG, "surfaceDestroyed");
-    	
-    	mjpegThread.exit();
-    }
-    
-    public void onFrameRead(Bitmap bitmap) {
-    	Canvas canvas = null;
-    	
-    	try {
-	    	canvas = surfaceHolder.lockCanvas();
-	        if (canvas != null) {
-	        	try {
-	        		
-	        		canvas.drawBitmap(bitmap, null, new Rect(0, 0, canvas.getWidth(), canvas.getHeight()), null);
-	        	} catch (Exception e) {
-	        		
-	        	}
-	        }
-	        
-	    }finally {
-            if (canvas != null) {
-                surfaceHolder.unlockCanvasAndPost(canvas);
-            }
+        if (z <= 0) {
+            /* Phone is turned over, do nothing */
+            mCar.pause();
+            updateDirectionImageView(0);
+
+            return;
+        }
+        
+        float hDegrees = (float) Math.toDegrees(Math.atan(y / z));
+        float vDegrees = (float) Math.toDegrees(Math.atan(x / z));
+        
+        if ((vDegrees > BACK_THRES_DEGREES) && (vDegrees > hDegrees)) {
+                mCar.backward();
+                updateDirectionImageView(BACK_ROTATE_DEGREES);
+        } else if (hDegrees > TURN_THRES_DEGREES) {
+                mCar.turnRight();
+                updateDirectionImageView(TURN_ROTATE_DEGREES);
+        } else if (hDegrees < -TURN_THRES_DEGREES) {
+            mCar.turnLeft();
+            updateDirectionImageView(-TURN_ROTATE_DEGREES);
+        } else {
+            mCar.forward(); 
+            updateDirectionImageView(0);
         }
     }
     
-    private void steerWheel(float fromDegrees, float toDegrees) {
-    	/* Create a animation of rotation */
-    	Animation rotateAnimation = new RotateAnimation(fromDegrees,toDegrees,
-    			Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-    	rotateAnimation.setDuration(ANIMATION_DURATION);
-    	
-    	/* animation stays on last image */
-    	rotateAnimation.setFillAfter(true);
-    	
-    	wheelImageView.startAnimation(rotateAnimation);
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        Log.v(TAG, "onAccuracyChanged()");
+    }
+    
+    public void surfaceCreated(SurfaceHolder holder) {
+        Log.v(TAG, "surfaceCreated()");
+        
+        mMjpegStream = new MjpegStream("http://" + mIp + ":8080?action=stream");
+        mMjpegStream.setCallback(new MjpegStream.Callback() {
+            public void onFrameRead(Bitmap bitmap) {
+                Canvas canvas = null;
+                
+                try {
+                    canvas = mSurfaceHolder.lockCanvas();
+                    if (canvas != null) {
+                        try {
+                            
+                            canvas.drawBitmap(bitmap, null, new Rect(0, 0, canvas.getWidth(), canvas.getHeight()), null);
+                        } catch (Exception e) {
+                            
+                        }
+                    }
+                    
+                }finally {
+                    if (canvas != null) {
+                        mSurfaceHolder.unlockCanvasAndPost(canvas);
+                    }
+                }
+            }
+        });
+        mMjpegStream.start();
+    }
+    
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        Log.v(TAG, "surfaceChanged()");
+    }
+    
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        Log.v(TAG, "surfaceDestroyed()");
+        
+        mMjpegStream.stop();
+    }
+    
+    private void updateDirectionImageView(float degrees) {
+        if (mRotateDegrees != degrees) {
+            /* Create a animation of rotation */
+            Animation animation = new RotateAnimation(mRotateDegrees, degrees,
+                    Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+            
+            /* Calculate the animation's duration */
+            long duration = (long)(1000 * Math.abs(mRotateDegrees - degrees) / ROTATE_ANIMATION_SPEED);
+            animation.setDuration(duration);
+            
+            /* animation stays on last image */
+            animation.setFillAfter(true);
+            
+            mDirectionImageView.startAnimation(animation);
+            
+            mRotateDegrees = degrees;
+        }
     }
 }

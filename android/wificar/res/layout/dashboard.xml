@@ -12,7 +12,7 @@
         android:layout_alignParentTop="true" />
 
     <ImageView
-        android:id="@+id/wheelImageView"
+        android:id="@+id/directionImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -26,15 +26,21 @@
         android:id="@+id/hintTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/wheelImageView"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:layout_marginBottom="24dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:text="@string/start_hint"
+        android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@android:color/white"
-        android:text="@string/start_hint" />
+        android:background="#80000000" />
 
     <android.gesture.GestureOverlayView
         android:id="@+id/gestureOverlayView"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
     </android.gesture.GestureOverlayView>
 
 </RelativeLayout>

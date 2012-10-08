@@ -1,7 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="#FFFFFFFF" >
 
     <ImageView
         android:id="@+id/carImageView"
@@ -13,8 +14,8 @@
 
     <Button
         android:id="@+id/goButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_marginBottom="16dp"
@@ -33,6 +34,7 @@
         android:layout_marginLeft="16dp"
         android:background="@drawable/parallelogram_button"
         android:textColor="@android:color/white"
+        android:onClick="onHelpButtonClick"
         android:text="@string/help" />
 
     <Button
@@ -43,6 +45,7 @@
         android:layout_alignLeft="@+id/helpButton"
         android:background="@drawable/parallelogram_button"
         android:textColor="@android:color/white"
+        android:onClick="onSettingsButtonClick"
         android:text="@string/settings" />
 
     <Button
@@ -53,6 +56,7 @@
         android:layout_below="@+id/helpButton"
         android:background="@drawable/parallelogram_button"
         android:textColor="@android:color/white"
+        android:onClick="onAboutButtonClick"
         android:text="@string/about" />
 
 </RelativeLayout>
