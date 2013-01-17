@@ -20,8 +20,8 @@ function init()
 
 function keydown(e)
 {
-    var chars = ['w', 'a', 's', 'd', 'e', 'c', 'z', 'a', 'w', 's', 'd'];
-    var codes = [ 87,  65,  83,  68,  69,  67,  90,  37,  38,  39,  40];
+    var chars = ['w', 'a', 's', 'd', 'e', 'c', 'z', 'a', 'w', 's', 'd', 'i', 'j', 'k'];
+    var codes = [ 87,  65,  83,  68,  69,  67,  90,  37,  38,  39,  40,  73,  74,  75];
     var code;
 
     if (keyPressed) {
@@ -42,7 +42,7 @@ function keydown(e)
 
 function keyup(e)
 {
-    var codes = [87, 65, 83, 68, 37, 38, 39, 40];
+    var codes = [87, 65, 83, 68, 37, 38, 39, 40, 73, 74, 75];
     var code;
 
     if (!keyPressed) {
@@ -83,7 +83,7 @@ body {margin:0px; padding:0px;}
 img {vertical-align:middle;}
 img.key {margin-right:8px;}
 ul, li {margin:0px; padding:0px; float:left; list-style:none;} 
-li {height:32px; margin-right:16px; line-height:32px; vertical-align:middle;}
+li {height:32px; margin-right:16px; margin-bottom:16px; line-height:32px; vertical-align:middle;}
 #page {width:800px; margin:auto;}
 </style>
 
@@ -103,10 +103,14 @@ li {height:32px; margin-right:16px; line-height:32px; vertical-align:middle;}
 <div id="operation-panel">
 <h3>Operation</h3>
 <ul>
-<li><img class="key" src="wasd.png"/>Move</li>
-<li><img class="key" src="z.png"/>Stop</li>
-<li><img class="key" src="e.png"/>Accelerate</li> 
-<li><img class="key" src="c.png"/>Decelerate</li>
+<li><img class="key" src="wasd.png" alt="wasd" />move</li>
+<li><img class="key" src="z.png" alt="z" />stop</li>
+<li><img class="key" src="e.png" alt="e" />accelerate</li> 
+<li><img class="key" src="c.png" alt="c" />decelerate</li>
+<br/>
+<li><img class="key" src="j.png" alt="j" />turn camera left</li>
+<li><img class="key" src="k.png" alt="k" />turn camera right</li>
+<li><img class="key" src="i.png" alt="i" />center camera</li>
 </ul>
 </div>
 </div>
