@@ -22,18 +22,13 @@ if ! [ -d ${IMAGE_BUILDER} ]; then
     echo "Done"
 fi
 
-echo ${IMAGE_BUILDER}
-echo ${IMAGE_BUILDER_LOCATION}
-echo ${IMAGE_BUILDER_PACKAGE}
-echo ${IMAGE_BUILDER_URL}
-
-
 PACKAGES=`cat packages_list`
 FILES=files
 PROFILE=TLWR703
 
-echo ${PACKAGES}
-
 cd ${IMAGE_BUILDER}
 make image PROFILE=${PROFILE} FILES=../${FILES} PACKAGES="${PACKAGES}"
+if [ $? -eq 0 ]; then
+    ln -f bin/ar71xx/openwrt-ar71xx-generic-tl-wr703n-v1-squashfs-factory.bin ../../release/openwrt-wr703n-latest.bin
+fi
 cd ..
