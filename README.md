@@ -16,7 +16,7 @@ Software
 - Android app to control the car remotely.
 - Web browser to access web UI of the car.
 
-![Hardware Overview](https://github.com/xiongyihui/wifi-car/blob/master/doc/hardware-overview.png?raw=true)
+![Hardware Overview](https://github.com/xiongyihui/wifi-car/blob/master/doc/hardware_overview.png?raw=true)
 
 
 
