@@ -1,1 +1,1 @@
-kmod-usb-core kmod-usb-ohci kmod-usb2 usbutils kmod-video-uvc kmod-video-gspca-core kmod-video-gspca-zc3xx mjpg-streamer luci kmod-usb-acm kmod-usb-serial coreutils-stty busybox
+kmod-usb-core kmod-usb-ohci kmod-usb2 usbutils kmod-video-uvc kmod-video-gspca-core kmod-video-gspca-zc3xx mjpg-streamer luci kmod-usb-acm kmod-usb-serial kmod-usb-serial-ftdi coreutils-stty busybox
