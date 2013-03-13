@@ -7,8 +7,17 @@ logger "action: ${ACTION}, name: ${DEVICENAME}, path: ${DEVPATH}"
 
 echo $DEVICENAME | grep -Eq $regex
 if [ $? -ne 0 ]; then
-    logger "not match"
-    exit
+    logger " ttyACM not match"
+	
+	regex1="ttyUSB[0-9]"
+	logger "action: ${ACTION}, name: ${DEVICENAME}, path: ${DEVPATH}"
+
+	echo $DEVICENAME | grep -Eq $regex1
+	if [ $? -ne 0 ]; then
+		logger "ttyUSB not match"
+		exit
+	fi
+
 fi
 
 DEVICE="/dev/$DEVICENAME" 

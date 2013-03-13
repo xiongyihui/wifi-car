@@ -1,0 +1,16 @@
+#!/bin/sh
+
+DEVICE='/dev/console'
+
+if [ ! -e $DEVICE ]; then
+    echo "$DEVICE doesn't exist"
+    exit 1
+fi
+
+echo -n -e "${QUERY_STRING}\n" > $DEVICE
+
+echo -n -e "HTTP/1.0 200 0K\r\n"
+echo -n -e "Content-Type: text/plain\r\n"
+echo -n -e "\r\n"
+echo -n -e "${QUERY_STRING}\r\n"
+

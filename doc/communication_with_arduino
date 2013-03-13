@@ -11,4 +11,8 @@ d               turn right
 z               stop
 e               accelerate
 c               decelerate
-
+i               camera up
+k               camera down
+j               camera left
+l               camera right
+o               center camera
