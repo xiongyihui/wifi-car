@@ -81,7 +81,7 @@ function keypress(e)
 
 function send(s)
 {
-    var url = "http://" + location.hostname + "/cgi-bin/serial?" + s;
+    var url = "http://" + location.hostname + "/cgi-bin/console?" + s;
     xmlHttp = new XMLHttpRequest();
     xmlHttp.open("GET", url, true);
     xmlHttp.send();
@@ -106,7 +106,7 @@ li {height:32px; margin-right:16px; margin-bottom:16px; line-height:32px; vertic
 #page {width:800px; margin:auto;}
 </style>
 
-<title>(Connect Arduino With USB)</title>
+<title>Car(Connect Arduino With UART)</title>
 </head>
 
 <body>

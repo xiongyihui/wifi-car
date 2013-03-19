@@ -1,0 +1,4 @@
+2013-3-13
+modify 30-arduino to search ttyUSB[0-9]
+add camera control interface(KEY:ikjlo)
+chagne etc/wireless "option macaddr	38:83:45:53:28:e4" to "option phy 'phy0'"
